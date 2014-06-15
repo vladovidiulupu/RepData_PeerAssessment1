@@ -3,7 +3,8 @@
 
 ## Loading and preprocessing the data
 
-```{r echo=TRUE}
+
+```r
 library(ggplot2)
 
 data <- read.csv("activity.csv")
@@ -15,29 +16,43 @@ names(totalStepsPerDay) <- c("date", "steps")
 
 Histogram of the total number of steps taken each day:
 
-```{r echo=TRUE}
+
+```r
 hist(totalStepsPerDay$steps, breaks=20, 
      main="Histogram of steps taken each day", 
      xlab="Steps taken per day")
 ```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
 The mean total number of steps taken per day:
 
-```{r echo=TRUE}
+
+```r
 mean(totalStepsPerDay$steps)
+```
+
+```
+## [1] 9354
 ```
 
 The median total number of steps taken per day:
 
-```{r echo=TRUE}
+
+```r
 median(totalStepsPerDay$steps)
+```
+
+```
+## [1] 10395
 ```
 
 ## What is the average daily activity pattern?
 
 Computing the average daily pattern:
 
-```{r echo=TRUE}
+
+```r
 averageStepsByInterval <- tapply(data$steps, data$interval, mean, na.rm=T)
 intervals <- data$interval[data$date == "2012-10-01"]
 averageDailyPattern <- data.frame(intervals, averageStepsByInterval)
@@ -46,17 +61,25 @@ names(averageDailyPattern) <- c("interval", "steps")
 
 Time series plot:
 
-```{r echo=TRUE}
+
+```r
 ggplot(averageDailyPattern, aes(interval, steps)) + 
     geom_line(colour="blue") +
     xlab("Interval") + 
     ylab("Average number of steps")
 ```
 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+
 The interval with the maximum number of steps:
 
-```{r echo=TRUE}
+
+```r
 averageDailyPattern$interval[which.max(averageDailyPattern$steps)]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -64,14 +87,20 @@ averageDailyPattern$interval[which.max(averageDailyPattern$steps)]
 
 The number of rows with NAs:
 
-```{r echo=TRUE}
+
+```r
 sum(!complete.cases(data))
+```
+
+```
+## [1] 2304
 ```
 
 To fill the missing values in the dataset, I will use the mean for the 5-minute
 interval:
 
-```{r echo=TRUE}
+
+```r
 data.imputed <- data
 for (interval in intervals) {
     #get the average number of steps for the current interval
@@ -89,22 +118,35 @@ names(totalStepsPerDay.imputed) <- c("date", "steps")
 
 Histogram of the total number of steps taken each day:
 
-```{r echo=TRUE}
+
+```r
 hist(totalStepsPerDay.imputed$steps, breaks=20, 
      main="Histogram of steps taken each day", 
      xlab="Steps taken per day")
 ```
 
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+
 The mean total number of steps taken per day:
 
-```{r echo=TRUE}
+
+```r
 mean(totalStepsPerDay.imputed$steps)
+```
+
+```
+## [1] 10766
 ```
 
 The median total number of steps taken per day:
 
-```{r echo=TRUE}
+
+```r
 median(totalStepsPerDay.imputed$steps)
+```
+
+```
+## [1] 10766
 ```
 
 Because all the NAs were replaced with average values, the number of days with 0
@@ -114,7 +156,8 @@ steps was drastically reduced. The average dominates in the histogram and the me
 
 Creating the weekday factor and adding it to the imputed data frame:
 
-```{r echo=TRUE}
+
+```r
 dateToFactor <- function(date) {
     day <- weekdays(date)
     if (day == "Saturday" || day == "Sunday")
@@ -134,8 +177,8 @@ dailyPatternByWeekday <-
 Plotting the average number of steps for each interval for weekday days and
 weekend days:
 
-```{r echo=TRUE}
 
+```r
 ggplot(dailyPatternByWeekday, aes(interval, steps)) + 
     facet_grid(. ~ weekday) +
     geom_line(colour="blue") +
@@ -143,8 +186,8 @@ ggplot(dailyPatternByWeekday, aes(interval, steps)) +
     ylab("Average number of steps")
 ```
 
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
+
 We can see that the weekdays have a period at noon in which the average number of
 steps taken is very high, while the number of steps is more evenly distributed
-in the weekend. In the weekend, activities start and end later than in weekdays. 
-
-These results may not be precise because I have used a simple method for replacing NAs that did not take into account this difference of patterns. 
+in the weekend. In the weekend, activities start and end later than in weekdays.
