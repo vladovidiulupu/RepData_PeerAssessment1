@@ -190,4 +190,6 @@ ggplot(dailyPatternByWeekday, aes(interval, steps)) +
 
 We can see that the weekdays have a period at noon in which the average number of
 steps taken is very high, while the number of steps is more evenly distributed
-in the weekend. In the weekend, activities start and end later than in weekdays.
+in the weekend. In the weekend, activities start and end later than in weekdays. 
+
+These results may not be precise because I have used a simple method for replacing NAs that did not take into account this difference of patterns. 
