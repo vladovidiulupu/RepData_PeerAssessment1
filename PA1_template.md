@@ -3,12 +3,19 @@
 
 ## Loading and preprocessing the data
 
+This script assumes that the "repdata-data-activity.zip" file is present in the working directory.
+
 
 ```r
 library(ggplot2)
+options(scipen = 6)
+
+if (!file.exists("activity.csv"))
+        unzip("repdata-data-activity.zip")
 
 data <- read.csv("activity.csv")
-totalStepsPerDay <- aggregate(data$steps, by=list(data$date), FUN=sum, na.rm=T)
+totalStepsPerDay <- aggregate(data$steps, by=list(data$date), FUN=sum)
+totalStepsPerDay <- totalStepsPerDay[complete.cases(totalStepsPerDay),]
 names(totalStepsPerDay) <- c("date", "steps")
 ```
 
@@ -18,34 +25,29 @@ Histogram of the total number of steps taken each day:
 
 
 ```r
-hist(totalStepsPerDay$steps, breaks=20, 
+hist(totalStepsPerDay$steps, breaks=20, col="palegreen3",
      main="Histogram of steps taken each day", 
      xlab="Steps taken per day")
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
-The mean total number of steps taken per day:
+Computing the mean and median:
 
 
 ```r
-mean(totalStepsPerDay$steps)
+totalStepsPerDayMean <- round(mean(totalStepsPerDay$steps))
 ```
 
-```
-## [1] 9354
-```
-
-The median total number of steps taken per day:
+The mean total number of steps taken per day is 10766.
 
 
 ```r
-median(totalStepsPerDay$steps)
+totalStepsPerDayMedian <- median(totalStepsPerDay$steps)
 ```
 
-```
-## [1] 10395
-```
+The median total number of steps taken per day is 10765.
+
 
 ## What is the average daily activity pattern?
 
@@ -71,33 +73,25 @@ ggplot(averageDailyPattern, aes(interval, steps)) +
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
-The interval with the maximum number of steps:
 
 
 ```r
-averageDailyPattern$interval[which.max(averageDailyPattern$steps)]
+maxStepsInterval <- averageDailyPattern$interval[which.max(averageDailyPattern$steps)]
 ```
 
-```
-## [1] 835
-```
-
+The interval with the maximum number of steps is 835.
 
 ## Imputing missing values
 
-The number of rows with NAs:
-
 
 ```r
-sum(!complete.cases(data))
+rowsWithNA <- sum(!complete.cases(data))
 ```
 
-```
-## [1] 2304
-```
+The number of rows with NAs is 2304.
 
-To fill the missing values in the dataset, I will use the mean for the 5-minute
-interval:
+To fill the missing values in the dataset, I will use the means for each of the 5-minute
+intervals:
 
 
 ```r
@@ -105,10 +99,10 @@ data.imputed <- data
 for (interval in intervals) {
     #get the average number of steps for the current interval
     averageSteps <- 
-        averageDailyPattern[averageDailyPattern$interval==interval,]$steps
+        round(averageDailyPattern[averageDailyPattern$interval==interval,]$steps)
     #fill in the missing data where NA is present
-    data.imputed[data$interval == interval & is.na(data$steps),]$steps <- 
-        averageSteps
+    incompleteRows <- data$interval == interval & is.na(data$steps)
+    data.imputed[incompleteRows,]$steps <- averageSteps
 }
 
 totalStepsPerDay.imputed <- 
@@ -120,37 +114,30 @@ Histogram of the total number of steps taken each day:
 
 
 ```r
-hist(totalStepsPerDay.imputed$steps, breaks=20, 
+hist(totalStepsPerDay.imputed$steps, breaks=20, col="palegreen4",
      main="Histogram of steps taken each day", 
      xlab="Steps taken per day")
 ```
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
-The mean total number of steps taken per day:
+Computing the mean and median for the imputed dataset:
 
 
 ```r
-mean(totalStepsPerDay.imputed$steps)
+totalStepsPerDayMean.imputed <- round(mean(totalStepsPerDay.imputed$steps))
 ```
 
-```
-## [1] 10766
-```
-
-The median total number of steps taken per day:
+The mean total number of steps taken per day is 10766.
 
 
 ```r
-median(totalStepsPerDay.imputed$steps)
+totalStepsPerDayMedian.imputed <- median(totalStepsPerDay.imputed$steps)
 ```
 
-```
-## [1] 10766
-```
+The median total number of steps taken per day is 10762.
 
-Because all the NAs were replaced with average values, the number of days with 0
-steps was drastically reduced. The average dominates in the histogram and the mean and median are the same.
+Because all the NAs were replaced with average values, the number of days with the mean number of steps was drastically increased. The average dominates in the histogram and the mean and median are close.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -158,14 +145,13 @@ Creating the weekday factor and adding it to the imputed data frame:
 
 
 ```r
-dateToFactor <- function(date) {
-    day <- weekdays(date)
-    if (day == "Saturday" || day == "Sunday")
+dateToFactor <- function(day) {
+    if (day == 0 || day == 6)
         "weekend"
     else
         "weekday"
 }
-weekdays <- sapply(as.Date(data.imputed$date), dateToFactor)
+weekdays <- sapply(as.POSIXlt(data.imputed$date)$wday, dateToFactor)
 weekdaysFactor <- as.factor(weekdays)
 data.imputed <- cbind(data.imputed, weekdaysFactor)
 names(data.imputed) <- c("steps", "date", "interval", "weekday")
@@ -188,8 +174,6 @@ ggplot(dailyPatternByWeekday, aes(interval, steps)) +
 
 ![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
-We can see that the weekdays have a period at noon in which the average number of
-steps taken is very high, while the number of steps is more evenly distributed
-in the weekend. In the weekend, activities start and end later than in weekdays. 
+We can see that the weekdays have a period in which the average number of steps taken is very high, which could be the morning. The mean number of steps per interval is more evenly distributed in the weekend. In the weekend, activities start and end later than in weekdays.
 
-These results may not be precise because I have used a simple method for replacing NAs that did not take into account this difference of patterns. 
+These results may not be precise because I have used a simple method for replacing NAs that used the average for all days and did not take into account this difference of patterns. 
