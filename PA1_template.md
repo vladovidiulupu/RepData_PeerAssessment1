@@ -1,8 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-# Reproducible Research: Peer Assessment 1
-
-
 ## Loading and preprocessing the data
 
 This script assumes that the "repdata-data-activity.zip" file is present in the working directory.
@@ -11,22 +8,6 @@ This script assumes that the "repdata-data-activity.zip" file is present in the 
 ```r
 library(ggplot2)
 library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
 library(lubridate)
 
 options(scipen = 6)

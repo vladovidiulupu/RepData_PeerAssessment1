@@ -5,14 +5,11 @@ output:
     keep_md: true
 ---
 
-# Reproducible Research: Peer Assessment 1
-
-
 ## Loading and preprocessing the data
 
 This script assumes that the "repdata-data-activity.zip" file is present in the working directory.
 
-```{r echo=TRUE}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(dplyr)
 library(lubridate)
