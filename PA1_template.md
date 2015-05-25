@@ -1,4 +1,9 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
 
 ## Loading and preprocessing the data
 
@@ -12,6 +17,15 @@ library(lubridate)
 
 options(scipen = 6)
 
+# Set the locale for date and time functions
+Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
+```
+
+```r
 if (!file.exists("activity.csv"))
         unzip("repdata-data-activity.zip")
 
@@ -42,7 +56,7 @@ hist(totalStepsPerDay$steps, breaks=20, col="palegreen3",
      xlab="Steps taken per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 
 Computing the mean and median:
 
@@ -83,7 +97,7 @@ ggplot(averageDailyPattern, aes(interval, steps)) +
     ylab("Average number of steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
 
 
 
@@ -156,7 +170,7 @@ hist(totalStepsPerDay.imputed$steps, breaks=20, col="palegreen4",
      xlab="Steps taken per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
 
 Computing the mean and median for the imputed dataset:
 
@@ -183,7 +197,7 @@ Creating the weekday factor and adding it to the imputed data frame:
 
 ```r
 imputedDataWeekend <- imputedData %>%
-    mutate(weekend = as.factor(ifelse(wday(date) %in% c(0, 6), "weekend", "weekday")))
+    mutate(weekend = as.factor(ifelse(wday(date, label = T) %in% c("Sat", "Sun"), "weekend", "weekday")))
 
 dailyPatternWeekend <- imputedDataWeekend %>%
     select(weekend, interval, steps) %>%
@@ -203,7 +217,7 @@ ggplot(dailyPatternWeekend, aes(interval, steps)) +
     ylab("Average number of steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png) 
 
 We can see that the weekdays have a period in which the average number of steps taken is high, which could be the start of the work day in the morning. The mean number of steps per interval is higher in the weekend, especially in the latter part of the day.
 

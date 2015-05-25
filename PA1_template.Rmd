@@ -16,6 +16,9 @@ library(lubridate)
 
 options(scipen = 6)
 
+# Set the locale for date and time functions
+Sys.setlocale("LC_TIME", "English")
+
 if (!file.exists("activity.csv"))
         unzip("repdata-data-activity.zip")
 
@@ -157,7 +160,7 @@ Creating the weekday factor and adding it to the imputed data frame:
 
 ```{r echo=TRUE}
 imputedDataWeekend <- imputedData %>%
-    mutate(weekend = as.factor(ifelse(wday(date) %in% c(0, 6), "weekend", "weekday")))
+    mutate(weekend = as.factor(ifelse(wday(date, label = T) %in% c("Sat", "Sun"), "weekend", "weekday")))
 
 dailyPatternWeekend <- imputedDataWeekend %>%
     select(weekend, interval, steps) %>%
